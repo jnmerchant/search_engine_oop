@@ -2,6 +2,10 @@ require 'csv'
 require 'pg'
 
 class RejectedLoan
+  attr_reader :id
+  attr_accessor :amount, :application_date, :loan_title, :risk_score, :debt_to_income,
+    :zip_code, :state, :employment_length
+
   def initialize(options)
     @id = options['id']
     @amount = options['amount']
@@ -16,8 +20,8 @@ class RejectedLoan
 
   def save
     conn = PG.connect(dbname: 'search_engine_oop')
-
-    conn.exec_params("INSERT INTO reject_stats_oop (amount, application_date, loan_title, risk_score,
+    table_name = conn.quote_ident('reject_stats_oop')
+    conn.exec_params("INSERT INTO #{table_name} (amount, application_date, loan_title, risk_score,
     debt_to_income, zip_code, state, employment_length) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);",
     [@amount, @application_date, @loan_title, @risk_score, @debt_to_income, @zip_code, @state, @employment_length])
     conn.close
@@ -81,6 +85,36 @@ class RejectedLoan
     puts "Record #{record_id} has been deleted."
   end
 
+  def self.get_add_input
+    options = {}
+    puts "Please enter the details of the rejected loan."
+    puts "Amount of the rejected loan: (00.00)"
+    amount = gets.chomp.to_f
+    puts "Application date: (YYYY-MM_DD)"
+    application_date = gets.chomp
+    puts "Loan title: (text)"
+    loan_title = gets.chomp
+    puts "Risk score: (0)"
+    risk_score = gets.chomp.to_i
+    puts "Debt to income: (0.0)"
+    debt_to_income = gets.chomp.to_f
+    puts "Zip code: (text)"
+    zip_code = gets.chomp
+    puts "State: (ST)"
+    state = gets.chomp.upcase
+    puts "Employment length: (text)"
+    employment_length = gets.chomp
+
+    options = {'amount' => amount, 'application_date' => application_date, 'loan_title' => loan_title, 'risk_score' => risk_score,
+    'debt_to_income' => debt_to_income, 'zip_code' => zip_code, 'state' => state, 'employment_length' => employment_length}
+
+    rejected_loan = RejectedLoan.new(options)
+    rejected_loan.save
+    field_name = 'application_date'
+    search_database("#{field_name}", rejected_loan.application_date)
+
+  end
+
   def self.get_field_values(field_name)
     db_values = []
     conn = PG.connect(dbname: 'search_engine_oop')
@@ -106,7 +140,8 @@ class RejectedLoan
     format = "%-10s\t%-15s\t%-10s\t%-20s\t%-10s\t%-20s\t%-10s\n"
     printf(format, "ID", "Amount", "Debt to Income", "Loan Title", "Risk Score", "Employment Length", "State\n")
     results.each do |result|
-      printf(format, "#{result['id']}", "$""#{result['amount']}", "#{result['debt_to_income']}", "#{result['loan_title']}", "#{result['risk_score']}", "#{result['employment_length']}", "#{result['state']}")
+      printf(format, "#{result['id']}", "$""#{result['amount']}", "#{result['debt_to_income']}",
+      "#{result['loan_title']}", "#{result['risk_score']}", "#{result['employment_length']}", "#{result['state']}")
     end
   end
 

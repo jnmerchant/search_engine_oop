@@ -14,21 +14,30 @@ def main
 end
 
 def main_menu
-  puts "Lending Club 2016 Q3 Rejected Loan Database\n\n"
-  puts "Enter (1) to Search, (2) to Sort, (3) to Update, and (4) to Delete"
-  input_selection = gets.chomp.to_i
+  puts "\n"
+  puts "Lending Club 2016 Q3 Rejected Loan Database\n"
 
-  case input_selection
-    when 1
-      RejectedLoan.get_search_input
-    when 2
-      RejectedLoan.get_sort_input
-    when 3
-      update
-    when 4
-      RejectedLoan.get_delete_input
-    else
-      RejectedLoan.get_search_input
+  quit = ''
+  until quit == 'q'
+    puts "Enter (1) - to Search, (2) - to Sort, (3) - to Update, (4) - to Delete and (5) - to Add"
+    input_selection = gets.chomp.to_i
+    case input_selection
+      when 1
+        RejectedLoan.get_search_input
+      when 2
+        RejectedLoan.get_sort_input
+      when 3
+        RejectedLoan.get_update_input
+      when 4
+        RejectedLoan.get_delete_input
+      when 5
+        RejectedLoan.get_add_input
+      else
+        puts 'Search default selected.'
+        RejectedLoan.get_search_input
+    end
+    puts 'Enter Q to quit or enter to continue: '
+    quit = gets.chomp.downcase
   end
 end
 
