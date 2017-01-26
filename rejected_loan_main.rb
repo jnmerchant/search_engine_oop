@@ -22,11 +22,11 @@ def main_menu
     when 1
       RejectedLoan.get_search_input
     when 2
-      sort
+      RejectedLoan.get_sort_input
     when 3
       update
     when 4
-      delete
+      RejectedLoan.get_delete_input
     else
       RejectedLoan.get_search_input
   end
