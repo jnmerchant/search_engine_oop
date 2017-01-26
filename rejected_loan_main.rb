@@ -2,19 +2,59 @@ require 'pg'
 require_relative 'rejected_loan'
 
 def main
-  do_reords_exist
-  if row_count.to_i == 0
-    RejectedLoan.load_file
+  if not table_exist?
+    RejectedLoan.create_table
+  end
+
+  if not records_exist?
+    RejectedLoan.seed_database
+  end
+
+  main_menu
+end
+
+def main_menu
+  puts "Lending Club 2016 Q3 Rejected Loan Database\n\n"
+  puts "Enter (1) to Search, (2) to Sort, (3) to Update, and (4) to Delete"
+  input_selection = gets.chomp.to_i
+
+  case input_selection
+    when 1
+      RejectedLoan.get_search_input
+    when 2
+      sort
+    when 3
+      update
+    when 4
+      delete
+    else
+      RejectedLoan.get_search_input
   end
 end
 
-def do_reords_exist?
+def table_exist?
   conn = PG.connect(dbname: 'search_engine_oop')
-  table_name = 'reject_stats_oop'
+  table_name = conn.quote_ident('reject_stats_oop')
 
-  records = conn.exec_params("SELECT COUNT(*) FROM $1;", [table_name])
-  row_count = records.getvalue 0, 0
-  row_count > 0 ? true : false
+  begin
+    records = conn.exec_params("SELECT COUNT(*) FROM #{table_name};")
+  rescue PG::UndefinedTable
+    return false
+  ensure
+    conn.close
+  end
+  true
 end
+
+def records_exist?
+  conn = PG.connect(dbname: 'search_engine_oop')
+  table_name = conn.quote_ident('reject_stats_oop')
+
+  records = conn.exec_params("SELECT COUNT(*) FROM #{table_name};")
+  conn.close
+  row_count = records.getvalue 0, 0
+  row_count.to_i > 0
+end
+
 
 main if __FILE__ == $PROGRAM_NAME
