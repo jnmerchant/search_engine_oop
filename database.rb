@@ -16,11 +16,11 @@ class Database
     @tables.each { |table| table.drop }
   end
 
-  def seed
+  def seed_tables
     @tables.each { |table| table.seed }
   end
 
-  def exists?
+  def table_exists?
     @tables.each { |table| table.exists?}
   end
 end

@@ -8,8 +8,17 @@ class Table
     @field_names = []
   end
 
-  def exits?
-
+  def exists?
+    table_name = conn.quote_ident(@name)
+    schema_name = conn.quote_ident('public')
+    
+    table_exists_sql = "SELECT EXISTS (
+      SELECT 1 FROM pg_tables
+      WHERE schemaname = #{schema_name}
+      AND tablename = #{table_name});"
+    result = conn.exec_params(table_exists_sql)
+    conn.close
+    result[0] ? true : false
   end
 
   def create(fields)
@@ -46,15 +55,15 @@ class Table
   end
 
   def insert_row
-    #looks to Row class
+    @row.each { |row| row.insert }
   end
 
   def update_row
-    #looks to Row class
+    @row.each { |row| row.update }
   end
 
   def delete_row
-    #looks to Row class
+    @row.each { |row| row.delete }
   end
 
   def find_by
@@ -63,9 +72,10 @@ class Table
 
   # TODO: refactor in to Table
   def records_exist?
-    conn = PG.connect(dbname: 'search_engine_oop')
-    table_name = conn.quote_ident('reject_stats_oop')
-    records = conn.exec_params("SELECT COUNT(*) FROM #{table_name};")
+    conn = PG.connect(dbname: database.name)
+    table_name = conn.quote_ident(@table_name)
+    records_exist_sql = "SELECT COUNT(*) FROM #{table_name};"
+    records = conn.exec_params(records_exist_sql)
     conn.close
     row_count = records.getvalue 0, 0
     row_count.to_i > 0

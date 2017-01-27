@@ -62,16 +62,16 @@ class RejectedLoanTable < Table
     delete_record(id_to_delete, field_name, search_value) # TODO: maybe this as well
   end
 
-  # TODO: SQL get stuff belongs in table, print stuff maybe not
-  def self.delete_record(record_id, field_name, search_value)
-    conn = PG.connect(dbname: 'search_engine_oop')
-    table_name = conn.quote_ident('reject_stats_oop')
-    delete_results = conn.exec_params("DELETE FROM #{table_name} WHERE id = $1;", [record_id])
-    # TODO: maybe pull the stuff below in to it's own function
-    results = search_database(field_name, search_value)
-    conn.close
-    puts "Record ID #{record_id} has been deleted."
-  end
+  # # TODO: SQL get stuff belongs in table, print stuff maybe not
+  # def self.delete_record(record_id, field_name, search_value)
+  #   conn = PG.connect(dbname: 'search_engine_oop')
+  #   table_name = conn.quote_ident('reject_stats_oop')
+  #   delete_results = conn.exec_params("DELETE FROM #{table_name} WHERE id = $1;", [record_id])
+  #   # TODO: maybe pull the stuff below in to it's own function
+  #   results = search_database(field_name, search_value)
+  #   conn.close
+  #   puts "Record ID #{record_id} has been deleted."
+  # end
 
   # TODO: refactor to Menu
   def self.get_add_input
@@ -136,44 +136,44 @@ class RejectedLoanTable < Table
     end
   end
 
-  # TODO: refactor to Table
-  def self.create_table
-    conn = PG.connect(dbname: 'search_engine_oop')
+  # # TODO: refactor to Table
+  # def self.create_table
+  #   conn = PG.connect(dbname: 'search_engine_oop')
+  #
+  #   begin
+  #     result = conn.exec('CREATE TABLE IF NOT EXISTS reject_stats_oop (id serial primary key, amount numeric,
+  #     application_date date, loan_title varchar, risk_score integer, debt_to_income numeric, zip_code varchar,
+  #     state varchar, employment_length varchar);')
+  #   rescue PG::DuplicateTable => e
+  #     puts "That table already exists.."
+  #   end
+  #   conn.close
+  # end
 
-    begin
-      result = conn.exec('CREATE TABLE IF NOT EXISTS reject_stats_oop (id serial primary key, amount numeric,
-      application_date date, loan_title varchar, risk_score integer, debt_to_income numeric, zip_code varchar,
-      state varchar, employment_length varchar);')
-    rescue PG::DuplicateTable => e
-      puts "That table already exists.."
-    end
-    conn.close
-  end
-
-  # TODO: refactor to Table
-  def self.seed()
-    # TODO: RejectedLoanTable.seed
-    # TODO: LoanOfficerTable.seed
-    seed_file_path = '/Users/Joe/Documents/TIY/Week3/search_engine_oop/data/q3_reject_stats.csv'
-    options = {}
-
-    CSV.foreach(seed_file_path, {:headers => true }) do |row|
-      amount = row[0].to_f
-      application_date = row[1]
-      loan_title = row[2]
-      risk_score = row[3].to_i
-      debt_to_income = /[\d+\.]/.match(row[4])
-      zip_code = row[5]
-      state = row[6]
-      employment_length = row[7]
-
-      options = {'amount' => amount, 'application_date' => application_date, 'loan_title' => loan_title, 'risk_score' => risk_score,
-      'debt_to_income' => debt_to_income, 'zip_code' => zip_code, 'state' => state, 'employment_length' => employment_length}
-
-      rejected_loan = RejectedLoan.new(options)
-      rejected_loan.save
-      options = {}
-    end
-  end
+  # # TODO: refactor to Table
+  # def self.seed()
+  #   # TODO: RejectedLoanTable.seed
+  #   # TODO: LoanOfficerTable.seed
+  #   seed_file_path = '/Users/Joe/Documents/TIY/Week3/search_engine_oop/data/q3_reject_stats.csv'
+  #   options = {}
+  #
+  #   CSV.foreach(seed_file_path, {:headers => true }) do |row|
+  #     amount = row[0].to_f
+  #     application_date = row[1]
+  #     loan_title = row[2]
+  #     risk_score = row[3].to_i
+  #     debt_to_income = /[\d+\.]/.match(row[4])
+  #     zip_code = row[5]
+  #     state = row[6]
+  #     employment_length = row[7]
+  #
+  #     options = {'amount' => amount, 'application_date' => application_date, 'loan_title' => loan_title, 'risk_score' => risk_score,
+  #     'debt_to_income' => debt_to_income, 'zip_code' => zip_code, 'state' => state, 'employment_length' => employment_length}
+  #
+  #     rejected_loan = RejectedLoan.new(options)
+  #     rejected_loan.save
+  #     options = {}
+  #   end
+  # end
 
 end
