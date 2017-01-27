@@ -1,0 +1,45 @@
+Database
+  has:
+    @name
+    @tables
+    @connection
+
+  does:
+    #create_tables - looks to Table class
+    #drop_tables - looks to Table class
+    #table_exists - looks to Table class
+    #seed
+    #connect
+    #disconnect
+
+  end
+
+Table (does the table SQL work)
+  has:
+    @name
+    @database.connection
+    @rows
+
+  does:
+    #exits?
+    #create
+    #drop
+    #seed
+    #insert_row - looks to Row class
+    #update_row - looks to Row class
+    #delete_row - looks to Row class
+    #find_by... - looks to Row class
+
+end
+
+Row (does the Row SQL work)
+  has:
+    @fields
+
+  does:
+    #insert
+    #udpate
+    #delete
+    #find_by
+
+  end

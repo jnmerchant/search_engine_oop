@@ -4,7 +4,7 @@ require_relative 'rejected_loan_database'
 require_relative 'rejected_loan_menu'
 
 def main
-  if not RejectedLoanDatabase.table_exists?
+  if not RejectedLoanDatabase.exists?
     RejectedLoanDatabase.create_table
   end
 
