@@ -2,12 +2,6 @@
 require_relative 'table'
 
 class Database
-  def initialize(options)
-    @name = options[:name]
-    @tables = options[:tables]
-    @connection = options[:connection]
-  end
-
   def create_tables
     @tables.each { |table| table.create }
   end

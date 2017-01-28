@@ -1,4 +1,9 @@
+require_relative 'table'
+
 class RejectedLoanTable < Table
+  def initialize(options)
+    @name = options['name']
+  end
 
   # TODO: refactor in to Table
   def self.find_by_id(id)

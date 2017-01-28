@@ -2,16 +2,15 @@ require_relative 'row'
 
 class Table
   def initialize (options)
-    @name = options[:name]
-    @rows = options[:rows]
+    @name = options['name']
+    @rows = options['rows']
     @database.connection
-    @field_names = []
   end
 
   def exists?
     table_name = conn.quote_ident(@name)
     schema_name = conn.quote_ident('public')
-    
+
     table_exists_sql = "SELECT EXISTS (
       SELECT 1 FROM pg_tables
       WHERE schemaname = #{schema_name}
@@ -22,7 +21,6 @@ class Table
   end
 
   def create(fields)
-    @field_names = fields.map { |name, data_type| name }
     merge_fields_and_datatypes = fields.map { |name, data_type| name + ' ' + data_type + ', ' }
     fields_to_query = merge_fields_and_datatypes.join
     create_table_query = ("CREATE TABLE IF NOT EXISTS '#{@name}' ('#{fields_to_query}');")
@@ -52,6 +50,7 @@ class Table
       rejected_loan = RejectedLoan.new(options)
       rejected_loan.save
       options = {}
+    end
   end
 
   def insert_row
@@ -80,5 +79,4 @@ class Table
     row_count = records.getvalue 0, 0
     row_count.to_i > 0
   end
-
 end

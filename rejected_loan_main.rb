@@ -1,11 +1,16 @@
 require 'pg'
-require_relative 'rejected_loan'
+require_relative 'database'
 require_relative 'rejected_loan_database'
 require_relative 'rejected_loan_menu'
 
 def main
-  if not RejectedLoanDatabase.exists?
-    RejectedLoanDatabase.create_table
+  options = {'name' => 'search_engine_oop', 'connection' => "PG.connect(dbname: 'search_engine_oop')"}
+  rl_database = RejectedLoanDatabase.new(options)
+  p rl_database
+
+
+  if not rl_database.exists?
+    rl_database.create_table
   end
 
   if not RejectedLoanDatabase.records_exist?

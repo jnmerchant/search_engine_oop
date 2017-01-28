@@ -1,14 +1,19 @@
-require_relative 'rejected_loan'
-require_relative 'Database'
+require_relative 'table'
+require_relative 'database'
 
 class RejectedLoanDatabase < Database
-  def initialize
-    @tables << RejectedLoanTable.new
-    @tables << LoanOfficerTable.new
+  def initialize(options)
+    @name = options['name']
+    @tables = {}
+    @connection = options['connection']
+
+    # rl_table = RejectedLoanTable.new({'name' => 'reject_stats_oop'})
+    # @tables[] rl_table
+    # @tables << LoanOfficerTable.new
   end
 
   def create_tables
-    RejectedLoanTable.create unless RejectedLoanTable.exists?
-    LoanOfficerTable.create unless LoanOfficerTable.exists?
+    # RejectedLoanTable.create unless RejectedLoanTable.exists?
+    # LoanOfficerTable.create unless LoanOfficerTable.exists?
   end
 end

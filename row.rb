@@ -1,14 +1,35 @@
 class Row
   def initialize(options)
-    @fields = options[:fields]
-    @values = options[:values]
+    @fields_and_values = options
+    @fields = get_fields
+    @values = get_values
+    @param_string = get_params_string
+  end
+
+  def get_fields
+    array_of_fields = fields_and_values.map { |field, value| field}
+    fields_string = array_of_fields.join
+  end
+
+  def get_params_string
+    number_of_params = @fields_and_values.length
+    i = 0
+    number_of_params_string = ''
+    number_of_params.times do
+      i += 1
+      number_of_params_string << '$' + i.to_s + ', '
+    end
+    @param_string = number_of_params_string.chop.chop
+  end
+
+  def get_values
+    fields_and_values.map { |field, value| value}
   end
 
   def insert
-    result = conn.exec_params(
-      "INSERT INTO #{table_name} (amount, application_date, loan_title, risk_score,
-      debt_to_income, zip_code, state, employment_length) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;",
-      [@amount, @application_date, @loan_title, @risk_score, @debt_to_income, @zip_code, @state, @employment_length])
+    insert_sql = "INSERT INTO #{table_name} (#{@fields})
+      VALUES (#{@param_string}) RETURNING id;"
+      insert_results = conn.exec_params(insert_sql, @values)
     @id = result[0]['id']
   end
 
@@ -20,13 +41,14 @@ class Row
   end
 
   def delete
-    delete_sql = ("DELETE FROM #{table_name} WHERE id = $1;", [record_id])
-    delete_results = conn.exec_params(delete_sql)
+    delete_sql = "DELETE FROM #{table_name} WHERE id = $1;"
+    delete_results = conn.exec_params(delete_sql, [record_id])
   end
 
   def find
-    find_sql = ("SELECT * FROM #{table_name} WHERE id = $1 LIMIT 1;", [id])
-    result = conn.exec_params("SELECT * FROM #{table_name} WHERE id = $1 LIMIT 1;", [id])
+    find_sql = "SELECT * FROM #{table_name} WHERE id = $1 LIMIT 1 ;"
+    result = conn.exec_params(find_sql, [id])
     return nil unless result.num_tuples == 1
     RejectedLoan.new(result[0])
   end
+end
