@@ -39,21 +39,11 @@ class Table
     options = {}
     CSV.foreach(seed_file_path, {:headers => true }) do |row|
       values = process_csv_row(@name, row)
-      # puts row.length
-      # puts values.length
-      # amount = row[0].to_f
-      # application_date = row[1]
-      # loan_title = row[2]
-      # risk_score = row[3].to_i
-      # debt_to_income = /[\d+\.]/.match(row[4])
-      # zip_code = row[5]
-      # state = row[6]
-      # employment_length = row[7]
       fields = get_fields(@name)
       options = Hash[fields.zip(values.map {|value| value.include?(',') ? (value.split /, /) : value})]
       puts options
-      rejected_loan = RejectedLoan.new(options)
-      rejected_loan.save
+      row_object = Row.new(options)
+      row_object.insert
       options = {}
     end
   end

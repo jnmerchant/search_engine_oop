@@ -7,7 +7,7 @@ class Row
   end
 
   def get_fields
-    array_of_fields = fields_and_values.map { |field, value| field}
+    array_of_fields = @fields_and_values.map { |field, value| field}
     fields_string = array_of_fields.join
   end
 
@@ -23,7 +23,7 @@ class Row
   end
 
   def get_values
-    fields_and_values.map { |field, value| value}
+    @fields_and_values.map { |field, value| value}
   end
 
   def insert
