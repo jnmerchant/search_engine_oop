@@ -1,5 +1,6 @@
 require_relative 'row'
 require_relative 'structures'
+require 'csv'
 
 class MissingTableStructureDefinition < StandardError
 end
@@ -14,7 +15,6 @@ class Table
   def exists?
     table_name = @connection.quote_ident(@name)
     schema_name = @connection.quote_ident('pg_catalog') # Hard Coded schema_name
-
     table_exists_sql = "SELECT EXISTS (
       SELECT 1 FROM pg_tables
       WHERE schemaname = '#{schema_name}' AND tablename = '#{table_name}');"
@@ -23,7 +23,7 @@ class Table
   end
 
   def create
-    fields = determine_table_fields
+    fields = get_table_fields
     merge_fields_and_datatypes = fields.map { |name, data_type| name + ' ' + data_type + ', ' }
     fields_to_query = merge_fields_and_datatypes.join.chop.chop
     create_table_query = ("CREATE TABLE IF NOT EXISTS #{@name} (#{fields_to_query});")
@@ -34,22 +34,24 @@ class Table
     drop_table_query = ("DROP TABLE IF EXISTS '#{@name}';")
   end
 
-  def seed(seed_file_path)
+  def seed
+    seed_file_path = get_file_paths(@name)
     options = {}
-
     CSV.foreach(seed_file_path, {:headers => true }) do |row|
-      amount = row[0].to_f
-      application_date = row[1]
-      loan_title = row[2]
-      risk_score = row[3].to_i
-      debt_to_income = /[\d+\.]/.match(row[4])
-      zip_code = row[5]
-      state = row[6]
-      employment_length = row[7]
-
-      values = [amount, application_date, loan_title, risk_score, debt_to_income, zip_code,
-        state, employment_length]
-      options = Hash[@fields.zip(values.map {|value| value.include?(',') ? (value.split /, /) : value})]
+      values = process_csv_row(@name, row)
+      # puts row.length
+      # puts values.length
+      # amount = row[0].to_f
+      # application_date = row[1]
+      # loan_title = row[2]
+      # risk_score = row[3].to_i
+      # debt_to_income = /[\d+\.]/.match(row[4])
+      # zip_code = row[5]
+      # state = row[6]
+      # employment_length = row[7]
+      fields = get_fields(@name)
+      options = Hash[fields.zip(values.map {|value| value.include?(',') ? (value.split /, /) : value})]
+      puts options
       rejected_loan = RejectedLoan.new(options)
       rejected_loan.save
       options = {}
@@ -72,18 +74,18 @@ class Table
     #looks to Row class
   end
 
-  # TODO: refactor in to Table
-  def records_exist?
-    conn = PG.connect(dbname: database.name)
-    table_name = conn.quote_ident(@table_name)
+  def records?
+    table_name = @connection.quote_ident(@name)
     records_exist_sql = "SELECT COUNT(*) FROM #{table_name};"
-    records = conn.exec_params(records_exist_sql)
-    conn.close
-    row_count = records.getvalue 0, 0
-    row_count.to_i > 0
+    records_result = @connection.exec_params(records_exist_sql)
+    row_count = records_result.getvalue 0, 0
+    if row_count.to_i == 0
+      return false
+    end
+    true
   end
 
-  def determine_table_fields
-    table_structures(@name)
+  def get_table_fields
+    get_table_structures(@name)
   end
 end

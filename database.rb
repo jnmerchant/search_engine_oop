@@ -28,4 +28,8 @@ class Database
   def table_exists?
     @tables.each { |table| table.exists?}
   end
+
+  def records_exist?
+    @tables.each { |table| table.records?}
+  end
 end

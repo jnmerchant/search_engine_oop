@@ -16,10 +16,11 @@ def main
     raise DataBaseDoesNotExist, "The database referenced does not exits."
   end
 
-  # if not RejectedLoanDatabase.records_exist?
-  #   RejectedLoanDatabase.seed
+  # unless rejected_loan_database.records_exist?
+  #   puts rejected_loan_database.records_exist?.to_s
+    rejected_loan_database.seed_tables
   # end
-  #
+
   # RejectedLoanMenu.display_main_menu
 end
 
