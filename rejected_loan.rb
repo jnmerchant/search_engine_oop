@@ -10,16 +10,16 @@ class RejectedLoan < Row
   attr_accessor :amount, :application_date, :loan_title, :risk_score, :debt_to_income,
     :zip_code, :state, :employment_length
 
-  def initialize(options)
-    @id = options['id']
-    @amount = options['amount'].to_f
-    @application_date = options['application_date']
-    @loan_title = options['loan_title']
-    @risk_score = options['risk_score'].to_i
-    @debt_to_income = /[\d+\.]/.match(options['debt_to_income'])
-    @zip_code = options['zip_code']
-    @state = options['state']
-    @employment_length = options['employment_length']
+  def initialize(row_options)
+    @id = row_options['id']
+    @amount = row_options['amount'].to_f
+    @application_date = row_options['application_date']
+    @loan_title = row_options['loan_title']
+    @risk_score = row_options['risk_score'].to_i
+    @debt_to_income = /[\d+\.]/.match(row_options['debt_to_income'])
+    @zip_code = /[A-Z]{2}/.match(row_options['zip_code'])
+    @state = row_options['state']
+    @employment_length = row_options['employment_length']
     @formatted_options = {'id' => @id, 'amount' => @amount, 'application_date' => @application_date,
       'loan_title' => @loan_title, 'risk_score' => @risk_score, 'debt_to_income' => @debt_to_income,
       'zip_code' => @zip_code, 'state' => @state, 'employment_length' => @employment_length}
