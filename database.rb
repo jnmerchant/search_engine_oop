@@ -29,7 +29,7 @@ class Database
     @tables.each { |table| table.exists?}
   end
 
-  def records_exist?
-    @tables.each { |table| table.records?}
+  def record_count
+    @tables.each { |table| table.records}
   end
 end

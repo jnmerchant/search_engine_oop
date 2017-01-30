@@ -15,8 +15,8 @@ class RejectedLoan < Row
     @application_date = row_options['application_date']
     @loan_title = row_options['loan_title']
     @risk_score = row_options['risk_score'].to_i
-    @debt_to_income = /[\d+\.]/.match(row_options['debt_to_income'])
-    @zip_code = /[A-Z]{2}/.match(row_options['zip_code'])
+    @debt_to_income = row_options['debt_to_income']
+    @zip_code = row_options['zip_code']
     @state = row_options['state']
     @employment_length = row_options['employment_length']
     @formatted_options = {'id' => @id, 'amount' => @amount, 'application_date' => @application_date,
@@ -26,9 +26,7 @@ class RejectedLoan < Row
   end
 
   def save
-    conn = PG.connect(dbname: 'search_engine_oop')
-    has_id? ? udpate_row : create_row
-    conn.close
+    has_id? ? update : insert(@connection)
   end
 
   def is_valid?

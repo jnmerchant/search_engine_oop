@@ -9,9 +9,12 @@ class MissingTableName < StandardError
 end
 
 class Table
+  attr_reader :name, :rows, :record_count
+
   def initialize (table_options)
     @name = table_options['name']
     @rows = table_options['rows']
+    @record_count = ''
     @connection = table_options['connection']
   end
 
@@ -43,8 +46,6 @@ class Table
     CSV.foreach(seed_file_path, {:headers => true }) do |row|
       values = process_csv_row(@name, row)
       fields = get_table_fields.delete_if { |key, value| key == 'id' }
-      puts fields
-      puts values
       options = Hash[fields.zip(values.map {|value| value.include?(',') ? (value.split /, /) : value})]
       row_object = Row.new(options, @name)
       row_object.insert(@connection)
@@ -64,19 +65,36 @@ class Table
     @row.each { |row| row.delete }
   end
 
-  def find_by
-    #looks to Row class
+  def find_by_id(id)
+    conn = PG.connect(dbname: 'search_engine_oop')
+    table_name = conn.quote_ident('reject_stats_oop')
+    result = conn.exec_params("SELECT * FROM #{table_name} WHERE id = $1 LIMIT 1;", [id])
+    return nil unless result.num_tuples == 1
+    RejectedLoan.new(result[0])
   end
 
-  def records?
+  def records
     table_name = @connection.quote_ident(@name)
     records_exist_sql = "SELECT COUNT(*) FROM #{table_name};"
     records_result = @connection.exec_params(records_exist_sql)
     row_count = records_result.getvalue 0, 0
-    if row_count.to_i == 0
-      return false
-    end
-    true
+    @record_count = row_count.to_i
+  end
+
+  def search_database(field_name, search_value)
+    conn = PG.connect(dbname: 'search_engine_oop')
+    table_name = conn.quote_ident('reject_stats_oop')
+    results = conn.exec_params("SELECT * FROM #{table_name} WHERE #{field_name} = $1;", [search_value])
+    output_results(results) # TODO: return array of objects, don't print them, do print elsewhere
+  end
+
+  def sort_database(sort_field, sort_order)
+    conn = PG.connect(dbname: 'search_engine_oop')
+    table_name = conn.quote_ident('reject_stats_oop')
+    sort_field = conn.quote_ident(sort_field)
+    results = conn.exec_params("SELECT * FROM #{table_name} ORDER BY #{sort_field} #{sort_order};")
+    conn.close
+    output_results(results) # TODO: return array of objects, don't print them, do print elsewhere
   end
 
   def get_table_fields

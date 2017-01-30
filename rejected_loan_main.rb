@@ -16,12 +16,10 @@ def main
     raise DataBaseDoesNotExist, "The database referenced does not exits."
   end
 
-  # unless rejected_loan_database.records_exist?
-  #   puts rejected_loan_database.records_exist?.to_s
-    rejected_loan_database.seed_tables
-  # end
+  # rejected_loan_database.seed_tables
 
-  # RejectedLoanMenu.display_main_menu
+  menu = RejectedLoanMenu.new
+  menu.display_main_menu
 end
 
 main if __FILE__ == $PROGRAM_NAME

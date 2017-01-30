@@ -5,7 +5,7 @@ require_relative 'rejected_loan_table'
 require_relative 'loan_officer_table'
 
 class RejectedLoanDatabase < Database
-  attr_reader :name, :connection
+  attr_reader :name, :connection, :tables
 
   def initialize(db_options)
     @name = db_options['name']
