@@ -5,6 +5,9 @@ require 'csv'
 class MissingTableStructureDefinition < StandardError
 end
 
+class MissingTableName < StandardError
+end
+
 class Table
   def initialize (table_options)
     @name = table_options['name']
@@ -39,11 +42,12 @@ class Table
     options = {}
     CSV.foreach(seed_file_path, {:headers => true }) do |row|
       values = process_csv_row(@name, row)
-      fields = get_fields(@name)
+      fields = get_table_fields.delete_if { |key, value| key == 'id' }
+      puts fields
+      puts values
       options = Hash[fields.zip(values.map {|value| value.include?(',') ? (value.split /, /) : value})]
-      puts options
-      row_object = Row.new(options)
-      row_object.insert
+      row_object = Row.new(options, @name)
+      row_object.insert(@connection)
       options = {}
     end
   end

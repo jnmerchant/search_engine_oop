@@ -39,6 +39,7 @@ def process_csv_row(name, row)
     processed_row << row[5] # zip_code
     processed_row << row[6] # state
     processed_row << row[7] # employment_length
+    processed_row << row[8] # loan officer id
     processed_row
   elsif name == 'loan_officers'
     processed_row = []
@@ -52,18 +53,18 @@ def process_csv_row(name, row)
   end
 end
 
-def get_fields(name)
-  field_hash = get_table_structures(name)
-  field_hash.delete_if {|key, value| key == 'id' }
-  field_hash.keys
-end
-
-# def get_csv_object(name)
-#   if name == 'reject_loans'
-#     'RejectedLoan.new(options)'
-#   elsif name == 'loan_officers'
-#     'LoanOfficer.new(options)'
-#   else
-#     raise MissingTableName, "The table name used is not a valid table name in the database."
-#   end
+# def get_fields(name)
+#   field_hash = get_table_structures(name)
+#   field_hash.delete_if {|key, value| key == 'id' }
+#   field_hash.keys
 # end
+
+def get_csv_object(name)
+  if name == 'reject_loans'
+    'RejectedLoan.new(options)'
+  elsif name == 'loan_officers'
+    'LoanOfficer.new(options)'
+  else
+    raise MissingTableName, "The table name used is not a valid table name in the database."
+  end
+end

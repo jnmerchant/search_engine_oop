@@ -1,5 +1,6 @@
 class Row
-  def initialize(options)
+  def initialize(options, name)
+    @table_name = name
     @fields_and_values = options
     @fields = get_fields
     @values = get_values
@@ -7,8 +8,14 @@ class Row
   end
 
   def get_fields
-    array_of_fields = @fields_and_values.map { |field, value| field}
-    fields_string = array_of_fields.join
+    field_hash = get_table_structures(@table_name)
+    field_hash.delete_if { |key, value| key == 'id' }
+    field_keys = field_hash.map { |field, value| field }
+    fields = ''
+    field_keys.each do |key|
+      fields << key + ", "
+    end
+    fields.chop.chop
   end
 
   def get_params_string
@@ -23,14 +30,18 @@ class Row
   end
 
   def get_values
-    @fields_and_values.map { |field, value| value}
+    value_array = @fields_and_values.map { |field, value| value}
   end
 
-  def insert
-    insert_sql = "INSERT INTO #{table_name} (#{@fields})
+  def insert(connection)
+    insert_sql = "INSERT INTO #{@table_name} (#{@fields})
       VALUES (#{@param_string}) RETURNING id;"
-      insert_results = conn.exec_params(insert_sql, @values)
-    @id = result[0]['id']
+      puts insert_sql
+      puts @table_name
+      puts @fields
+      puts @values
+      insert_result = connection.exec_params(insert_sql, @values)
+    @id = insert_result[0]['id']
   end
 
   def update
